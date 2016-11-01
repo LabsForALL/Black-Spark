@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/index"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.freelabs.blackspark.MainActivity">
+
+    <TextView
+        android:id="@+id/caption_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+
+        android:typeface="sans"
+        android:text="recognizer status"/>
+
+    <TextView
+        android:id="@+id/txtBluetoothStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:typeface="sans"
+        android:text="bluetooth status"/>
+
+
+    <Button
+        android:id="@+id/btnConnect"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Connect" />
+
+
+    <Button
+        android:id="@+id/btnDiscover"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:text="Check ping"/>
+
+
+    <Button
+        android:id="@+id/btnForward"
+        android:layout_width="fill_parent"
+        android:layout_marginBottom="10dp"
+        android:layout_height="60dp"
+        android:background="#63d471"
+        android:text="Forward"/>
+
+    <Button
+        android:id="@+id/btnStop"
+        android:layout_width="fill_parent"
+        android:layout_height="60dp"
+        android:text="Stop"
+        android:layout_marginBottom="10dp"
+        android:background="#ff5e5e"/>
+
+    <Button
+        android:id="@+id/btnBackward"
+        android:layout_width="fill_parent"
+        android:layout_height="60dp"
+        android:background="#6a7152"
+        android:layout_marginBottom="10dp"
+        android:text="Backward"/>
+
+    <Button
+        android:id="@+id/btnStartConv"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Start conversation"/>
+
+    <Button
+        android:id="@+id/btnDisconnect"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Disconnect"/>
+
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center" >
+
+        <TextView
+            android:id="@+id/result_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ping result"/>
+    </LinearLayout>
+
+
+</RelativeLayout>
