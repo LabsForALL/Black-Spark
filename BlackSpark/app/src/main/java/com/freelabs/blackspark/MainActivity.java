@@ -92,8 +92,7 @@ public class MainActivity extends Activity implements RecognitionListener,TextTo
     public void onCreate(Bundle state) {
         super.onCreate(state);
 
-        setContentView(R.layout.index);
-
+        setContentView(R.layout.bluetooth_control);
         //Setting up buttons listeners
         Button btnConnect = (Button) findViewById(R.id.btnConnect);
         Button btnPing = (Button) findViewById(R.id.btnDiscover);

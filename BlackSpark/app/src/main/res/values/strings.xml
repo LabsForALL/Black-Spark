@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">BlackSpark</string>
+    <string name="cmd_turn_right">R</string>
+    <string name="cmd_turn_left">L</string>
+    <string name="cmd_stop">S</string>
+    <string name="cmd_move_forward">F</string>
+    <string name="cmd_move_backward">B</string>
+    <string name="cmd_connect">Connect</string>
+    <string name="cmd_disconnect">Disconnect</string>
 </resources>
