@@ -1,0 +1,5 @@
+#JSGF V1.0;
+
+grammar menu;
+
+public <item> = forward | backward | turn around |  mario dance | connect | turn left | turn right |  tango dance | go crazy ;

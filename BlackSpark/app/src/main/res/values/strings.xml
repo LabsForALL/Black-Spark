@@ -7,4 +7,5 @@
     <string name="cmd_move_backward">B</string>
     <string name="cmd_connect">Connect</string>
     <string name="cmd_disconnect">Disconnect</string>
+    <string name="init_text">Console</string>
 </resources>

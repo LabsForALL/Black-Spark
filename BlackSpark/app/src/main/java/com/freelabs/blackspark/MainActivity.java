@@ -29,22 +29,18 @@
  */
 
 package com.freelabs.blackspark;
+
 import static android.widget.Toast.makeText;
 import static edu.cmu.pocketsphinx.SpeechRecognizerSetup.defaultSetup;
-
-import java.io.DataInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.Locale;
-import java.util.UUID;
-
 import android.app.Activity;
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.speech.tts.UtteranceProgressListener;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -58,7 +54,8 @@ import edu.cmu.pocketsphinx.RecognitionListener;
 import edu.cmu.pocketsphinx.SpeechRecognizer;
 import android.speech.tts.TextToSpeech;
 
-public class MainActivity extends Activity implements RecognitionListener,TextToSpeech.OnInitListener {
+
+public class MainActivity extends Activity implements RecognitionListener, TextToSpeech.OnInitListener {
 
     private static final String MENU_SEARCH = "menu";
     private static final String CHECK_SEARCH = "check";
@@ -67,65 +64,53 @@ public class MainActivity extends Activity implements RecognitionListener,TextTo
     private TextToSpeech tts;
     private String state = "init";
     private String command = "";
-    private boolean isReady=true;
-    private static final String MAC_ADDRESS = "20:16:01:20:66:61";
-    BluetoothAdapter myBluetooth = null;
-    BluetoothSocket btSocket = null;
-    private boolean isBtConnected = false;
-    static final UUID myUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
-
-
-    //CAR COMMANDS
-    private static final String MOVE_FORWARD = "f";
-    private static final String MOVE_BACKWARD = "b";
-    private static final String MOVE_STOP = "s";
-    private static final String MOVE_FORCE_STOP = "x";
-    private static final String TURN_LEFT = "l";
-    private static final String TURN_RIGHT = "r";
-
-
-
     private SpeechRecognizer recognizer = null;
 
-
     @Override
-    public void onCreate(Bundle state) {
+    public void onCreate(Bundle state, PersistableBundle persistableBundle) {
         super.onCreate(state);
 
-        setContentView(R.layout.bluetooth_control);
+        setContentView(R.layout.index);
         //Setting up buttons listeners
         Button btnConnect = (Button) findViewById(R.id.btnConnect);
-        Button btnPing = (Button) findViewById(R.id.btnDiscover);
         Button btnForward = (Button) findViewById(R.id.btnForward);
         Button btnStop = (Button) findViewById(R.id.btnStop);
         Button btnBackward = (Button) findViewById(R.id.btnBackward);
-        Button btnStartConv = (Button) findViewById(R.id.btnStartConv);
-        Button btnDisconnect = (Button) findViewById(R.id.btnDisconnect);
+        //Button btnStartSpeak = (Button) findViewById(R.id.btnStartConv);
 
-        btnConnect.setOnClickListener(new View.OnClickListener(){
+        btnConnect.setOnClickListener(new View.OnClickListener() {
 
             public void onClick(View v) {
-                ((TextView) findViewById(R.id.txtBluetoothStatus)).setText("Connecting");
-                new ConnectBT().execute();
+                ((TextView) findViewById(R.id.btnConnect)).setText("Connecting");
+                //new ConnectBT().execute();
             }
 
+            /*if (btSocket!=null) //If the btSocket is busy
+                {
+                    try
+                    {
+                        btSocket.close(); //close connection
+                        btSocket=null;
+                        isBtConnected=false;
+
+                        ((TextView) findViewById(R.id.txtBluetoothStatus)).setText("Disconnected");
+
+                    }
+                    catch (IOException e)
+                    {
+                        makeText(getApplicationContext(),"ERROR: \n" + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                }*/
         });
 
         btnStop.setOnClickListener(new View.OnClickListener() {
 
             public void onClick(View v) {
-                requestCommand(MOVE_FORCE_STOP);
+                //requestCommand(MOVE_FORCE_STOP);
             }
 
         });
 
-        btnPing.setOnClickListener(new View.OnClickListener() {
-
-            public void onClick(View v) {
-                ping();
-            }
-
-        });
 
         btnForward.setOnTouchListener(new View.OnTouchListener() {
 
@@ -135,13 +120,13 @@ public class MainActivity extends Activity implements RecognitionListener,TextTo
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
 
 
-                    requestCommand(MOVE_FORWARD);
+                    //requestCommand(MOVE_FORWARD);
 
 
                 } else if (event.getAction() == MotionEvent.ACTION_UP) {
 
 
-                    requestCommand(MOVE_STOP);
+                    //requestCommand(MOVE_STOP);
 
                 }
 
@@ -158,14 +143,10 @@ public class MainActivity extends Activity implements RecognitionListener,TextTo
             public boolean onTouch(View v, MotionEvent event) {
 
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
-
-                    requestCommand(MOVE_BACKWARD);
-
+                    //requestCommand(MOVE_BACKWARD);
 
                 } else if (event.getAction() == MotionEvent.ACTION_UP) {
-
-                    requestCommand(MOVE_STOP);
-
+                    //requestCommand(MOVE_STOP);
                 }
 
                 return true;
@@ -174,42 +155,15 @@ public class MainActivity extends Activity implements RecognitionListener,TextTo
 
         });
 
-
+/*
         btnStartConv.setOnClickListener(new View.OnClickListener(){
 
             public void onClick(View v) {
                 speakOut("welcome");
             }
 
-        });
+        });*/
 
-
-        btnDisconnect.setOnClickListener(new View.OnClickListener(){
-
-            public void onClick(View v) {
-
-                if (btSocket!=null) //If the btSocket is busy
-                {
-                    try
-                    {
-                        btSocket.close(); //close connection
-                        btSocket=null;
-                        isBtConnected=false;
-
-                        ((TextView) findViewById(R.id.txtBluetoothStatus)).setText("Disconnected");
-
-                    }
-                    catch (IOException e)
-                    {
-                        makeText(getApplicationContext(),"ERROR: \n" + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                }
-
-            }
-
-        });
-
-        ((TextView) findViewById(R.id.caption_text)).setText("Preparing the recognizer");
 
         // Recognizer initialization is a time-consuming and it involves IO,
         // so we execute it in async task
@@ -218,10 +172,7 @@ public class MainActivity extends Activity implements RecognitionListener,TextTo
             @Override
             protected Exception doInBackground(Void... params) {
                 try {
-                    Assets assets = new Assets(MainActivity.this);
-                    File assetDir = assets.syncAssets();
-                    setupRecognizer(assetDir);
-
+                    setupRecognizer();
                 } catch (IOException e) {
                     return e;
                 }
@@ -231,23 +182,20 @@ public class MainActivity extends Activity implements RecognitionListener,TextTo
             @Override
             protected void onPostExecute(Exception result) {
                 if (result != null) {
-                    ((TextView) findViewById(R.id.caption_text))
-                            .setText("Failed to init recognizer " + result);
-                    recognizer=null;
-                }else{
-
-                    ((TextView) findViewById(R.id.caption_text))
-                            .setText("Recognizer is ready");
-
+                    Toast.makeText(getApplicationContext(), "Failed to init recognizer ", Toast.LENGTH_LONG).show();
+                    recognizer = null;
+                } else {
+                    Toast.makeText(getApplicationContext(), "Recognizer is ready", Toast.LENGTH_LONG).show();
                 }
             }
         }.execute();
 
     }
 
+    private void setupRecognizer() throws IOException {
 
-
-    private void setupRecognizer(File assetsDir) throws IOException {
+        Assets assets = new Assets(MainActivity.this);
+        File assetsDir = assets.syncAssets();
 
         recognizer = defaultSetup()
                 .setAcousticModel(new File(assetsDir, "en-us-ptm"))
@@ -259,7 +207,7 @@ public class MainActivity extends Activity implements RecognitionListener,TextTo
 
         recognizer.addListener(this);
 
-        recognizer.addKeyphraseSearch(KEY_SEARCH,KEY);
+        recognizer.addKeyphraseSearch(KEY_SEARCH, KEY);
 
         File menuGrammar = new File(assetsDir, "menu.gram");
         recognizer.addGrammarSearch(MENU_SEARCH, menuGrammar);
@@ -268,78 +216,7 @@ public class MainActivity extends Activity implements RecognitionListener,TextTo
         recognizer.addGrammarSearch(CHECK_SEARCH, checkGrammar);
 
         tts = new TextToSpeech(this, this);
-
     }
-
-
-
-    //CAR FEATURES
-
-
-    private void requestCommand(String cmd){
-
-
-        if (btSocket!=null)
-        {
-            try {
-
-                btSocket.getOutputStream().write(cmd.getBytes());
-                btSocket.getOutputStream().flush();
-
-                Log.e("BLUETOOTH COMMAND:", "sending command " + cmd);
-
-            }
-            catch (IOException e)
-            {
-                makeText(getApplicationContext(),"ERROR: \n" + e.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        }
-
-
-    }
-
-    private long ping(){
-
-        long pingResult;
-
-        byte[] buffer = new byte[256];  // buffer store for the stream
-        int bytes;
-
-        try {
-
-            long startTime = System.nanoTime();
-            // ... the code being measured ...
-
-            btSocket.getOutputStream().write("P".getBytes());
-            btSocket.getOutputStream().flush();
-
-            DataInputStream mmInStream = new DataInputStream(btSocket.getInputStream());
-
-            // Read from the InputStream
-            bytes = mmInStream.read(buffer);
-
-            // ... the code being measured ...
-            pingResult = System.nanoTime() - startTime;
-
-            String readMessage = new String(buffer, 0, bytes);
-
-            TextView txtResult = (TextView) findViewById(R.id.result_text);
-            txtResult.setText(String.valueOf(pingResult));
-
-
-            return pingResult;
-
-        }catch(Exception e){
-
-            makeText(getApplicationContext(),"ERROR: \n" + e.getMessage(), Toast.LENGTH_SHORT).show();
-
-        }
-
-
-        return 0;
-    }
-
-
 
 
     @Override
@@ -348,25 +225,24 @@ public class MainActivity extends Activity implements RecognitionListener,TextTo
     }
 
 
-
     @Override
     public void onPartialResult(Hypothesis hypothesis) {
 
-
     }
+
 
     @Override
     public void onEndOfSpeech() {
 
-        makeText(getApplicationContext(),"END of speech", Toast.LENGTH_SHORT).show();
+        makeText(getApplicationContext(), "END of speech", Toast.LENGTH_SHORT).show();
         recognizer.stop();
 
-        if(state.equals("menu")) {
+        if (state.equals("menu")) {
 
             recognizer.startListening(MENU_SEARCH, 5000);
             Log.e("end of speech", "MENU SEARCH ");
 
-        }else if(state.equals("go_on")){
+        } else if (state.equals("go_on")) {
 
             recognizer.startListening(CHECK_SEARCH, 5000);
             Log.e("end of speech", "CHECK SEARCH");
@@ -374,7 +250,6 @@ public class MainActivity extends Activity implements RecognitionListener,TextTo
         }
 
     }
-
 
 
     @Override
@@ -387,73 +262,72 @@ public class MainActivity extends Activity implements RecognitionListener,TextTo
             if (text.equals("forward")) {
 
                 speakOut("Do you really want to go forward ?");
-                command="forward";
+                command = "forward";
 
-            }else if(text.equals("backward")){
+            } else if (text.equals("backward")) {
 
                 speakOut("Do you really want to go backward ?");
-                command="backward";
+                command = "backward";
 
-            }else if(text.equals("turn around")){
+            } else if (text.equals("turn around")) {
 
                 speakOut("Do you really want to turn around ?");
-                command="turn around";
+                command = "turn around";
 
-            }else if(text.equals("connect")){
+            } else if (text.equals("connect")) {
 
                 speakOut("Do you really want to go connect ?");
-                command="connect";
+                command = "connect";
 
-            }else if(text.equals("turn left")){
+            } else if (text.equals("turn left")) {
 
                 speakOut("Do you really want to turn left ?");
-                command="turn left";
+                command = "turn left";
 
-            }else if(text.equals("turn right")){
+            } else if (text.equals("turn right")) {
 
                 speakOut("Do you really want to turn right ?");
-                command="turn right";
+                command = "turn right";
 
-            }else if(text.equals("correct")){
+            } else if (text.equals("correct")) {
 
                 speakOut("Ok, we are going on");
 
-                if(command.equals("forward")){
+                if (command.equals("forward")) {
 
                     makeText(getApplicationContext(), "Going forward", Toast.LENGTH_SHORT).show();
-                    requestCommand(MOVE_FORWARD);
+                    //requestCommand(MOVE_FORWARD);
 
-                }else if (command.equals("backward")){
+                } else if (command.equals("backward")) {
 
                     makeText(getApplicationContext(), "Going backward", Toast.LENGTH_SHORT).show();
-                    requestCommand(MOVE_BACKWARD);
+                    //requestCommand(MOVE_BACKWARD);
 
-                }else if (command.equals("connect")){
+                } else if (command.equals("connect")) {
 
                     makeText(getApplicationContext(), "Connecting", Toast.LENGTH_SHORT).show();
-                    new ConnectBT().execute();
+                    //new ConnectBT().execute();
 
-                }else if (command.equals("turn left")){
+                } else if (command.equals("turn left")) {
 
                     makeText(getApplicationContext(), "Turning left", Toast.LENGTH_SHORT).show();
-                    requestCommand(TURN_LEFT);
-                }else if (command.equals("turn right")){
+                    //requestCommand(TURN_LEFT);
+                } else if (command.equals("turn right")) {
 
                     makeText(getApplicationContext(), "Turning right", Toast.LENGTH_SHORT).show();
-                    requestCommand(TURN_RIGHT);
+                    //requestCommand(TURN_RIGHT);
 
                 }
 
-            }else if(text.equals("wrong")){
+            } else if (text.equals("wrong")) {
 
                 speakOut("Let's try again");
 
             }
 
-            makeText(getApplicationContext(),"onResult!!", Toast.LENGTH_SHORT).show();
+            makeText(getApplicationContext(), "onResult!!", Toast.LENGTH_SHORT).show();
 
         }
-
 
 
     }
@@ -463,13 +337,13 @@ public class MainActivity extends Activity implements RecognitionListener,TextTo
     public void onTimeout() {
         makeText(getApplicationContext(), "Time out reset", Toast.LENGTH_SHORT).show();
 
-        if(state.equals("menu")) {
+        if (state.equals("menu")) {
 
             recognizer.startListening(CHECK_SEARCH, 5000);
 
             Log.e("end of speech", "CHECK SEARCH ");
 
-        }else if(state.equals("go_on")){
+        } else if (state.equals("go_on")) {
 
             recognizer.startListening(MENU_SEARCH, 5000);
             Log.e("end of speech", "MENU SEARCH");
@@ -488,9 +362,8 @@ public class MainActivity extends Activity implements RecognitionListener,TextTo
 
     //TEXT TO SPEECH
 
-    private void speakOut(String speakingWords)
-    {
-        this.tts.speak(speakingWords, 0, null,"utteranceID");
+    private void speakOut(String speakingWords) {
+        this.tts.speak(speakingWords, 0, null, "utteranceID");
     }
 
     @Override
@@ -568,94 +441,15 @@ public class MainActivity extends Activity implements RecognitionListener,TextTo
 
     }
 
-
-    //BLUETOOTH CONNECTION
-
-    private class ConnectBT extends AsyncTask<Void, Void, Exception> {
-
-        private boolean ConnectSuccess = true; //if it's here, it's almost connected
-
-        @Override
-        protected void onPreExecute() {
-            makeText(getApplicationContext(), "Connecting to bluetooth", Toast.LENGTH_SHORT).show();
-        }
-
-        @Override
-        protected Exception doInBackground(Void... devices) {
-
-            try {
-
-                if (btSocket == null || !isBtConnected) {
-
-                    //get the mobile bluetooth device
-                    myBluetooth = BluetoothAdapter.getDefaultAdapter();
-
-                    if (myBluetooth == null) {
-
-                        //Show a mensag. that the device has no bluetooth adapter
-                        Toast.makeText(getApplicationContext(), "Bluetooth Device Not Available", Toast.LENGTH_LONG).show();
-                        //finish apk
-                        finish();
-
-                    } else if (!myBluetooth.isEnabled()) {
-
-                        //Ask to the user turn the bluetooth on
-                        Intent turnBTon = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                        startActivityForResult(turnBTon, 1);
-
-                    }
-
-
-                    BluetoothDevice remoteDevice = myBluetooth.getRemoteDevice(MAC_ADDRESS);//connects to the device's address and checks if it's available
-                    btSocket = remoteDevice.createInsecureRfcommSocketToServiceRecord(myUUID);//create a RFCOMM (SPP) connection
-
-                    BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
-                    btSocket.connect();//start connection
-
-                }
-
-            } catch (IOException e) {
-
-                ConnectSuccess = false;//if the try failed, you can check the exception here
-                return e;
-
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Exception result) {
-
-            //after the doInBackground, it checks if everything went fine
-            super.onPostExecute(result);
-
-            if (!ConnectSuccess) {
-
-                ((TextView) findViewById(R.id.txtBluetoothStatus)).setText("Connecting failed try again");
-                makeText(getApplicationContext(), result.getMessage(), Toast.LENGTH_SHORT).show();
-
-            } else {
-
-                ((TextView) findViewById(R.id.txtBluetoothStatus)).setText("Connected to bluetooth");
-                isBtConnected = true;
-
-            }
-
-        }
-    }
-
-
-
-
     @Override
-    public void onStop(){
+    public void onStop() {
 
-        if(recognizer!=null) {
+        if (recognizer != null) {
             recognizer.cancel();
             recognizer.shutdown();
-            recognizer=null;
+            recognizer = null;
         }
-
+/*
         if (btSocket!=null) //If the btSocket is busy
         {
             try
@@ -668,27 +462,22 @@ public class MainActivity extends Activity implements RecognitionListener,TextTo
             {
                 makeText(getApplicationContext(),"ERROR: \n" + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
-        }
+        }*/
 
         super.onStop();
     }
-
-
-
 
 
     @Override
     public void onDestroy() {
 
 
-        if (this.tts != null)
-        {
+        if (this.tts != null) {
             this.tts.stop();
             this.tts.shutdown();
         }
 
         super.onDestroy();
     }
-
 }
 

@@ -1,99 +1,99 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/index"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical"
-    android:padding="16dp" >
     tools:context="com.freelabs.blackspark.MainActivity">
 
-
-
-    <TextView
-        android:id="@+id/caption_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-
-        android:typeface="sans"
-        android:text="recognizer status"/>
-
-    <TextView
-        android:id="@+id/txtBluetoothStatus"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:typeface="sans"
-        android:text="bluetooth status"/>
-
-
-    <Button
-        android:id="@+id/btnConnect"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="Connect" />
-
-
-    <Button
-        android:id="@+id/btnDiscover"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
-        android:text="Check ping"/>
-
-
-    <Button
-        android:id="@+id/btnForward"
-        android:layout_width="348dp"
-        android:layout_marginBottom="10dp"
-        android:layout_height="60dp"
-        android:background="#63d471"
-        android:text="Forward"
-        android:layout_weight="0.00" />
-
-    <Button
-        android:id="@+id/btnStop"
-        android:layout_width="fill_parent"
-        android:layout_height="60dp"
-        android:text="Stop"
-        android:layout_marginBottom="10dp"
-        android:background="#ff5e5e"/>
-
-    <Button
-        android:id="@+id/btnBackward"
-        android:layout_width="fill_parent"
-        android:layout_height="60dp"
-        android:background="#6a7152"
-        android:layout_marginBottom="10dp"
-        android:text="Backward"/>
-
-    <Button
-        android:id="@+id/btnStartConv"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="Start conversation"/>
-
-    <Button
-        android:id="@+id/btnDisconnect"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="Disconnect"/>
-
-
-
     <LinearLayout
+        android:layout_weight="1"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:gravity="center" >
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/btnConnect"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/cmd_connect"
+            android:layout_margin="5dp"
+            android:background="@android:color/holo_blue_dark" />
 
         <TextView
-            android:id="@+id/result_text"
+            android:id="@+id/txtConsole"
+            android:text="@string/init_text"
+            android:layout_margin="5dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:textAlignment="center"
+            android:background="@android:color/darker_gray" />
+
+
+    </LinearLayout>
+
+    <RelativeLayout
+
+        android:layout_width="match_parent"
+        android:layout_height="164dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_margin="5dp">
+
+        <Button
+            android:id="@+id/btnStop"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="ping result"/>
-    </LinearLayout>
+            android:text="@string/cmd_stop"
+            android:background="@android:color/holo_orange_dark"
+            android:textColor="@android:color/background_light"/>
+
+        <Button
+            android:id="@+id/btnForward"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:text="@string/cmd_move_forward"
+            android:background="@android:color/holo_green_light"
+            android:textColor="@android:color/background_light" />
+
+        <Button
+            android:id="@+id/btnBackward"
+            android:layout_centerHorizontal="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/cmd_move_backward"
+            android:layout_alignParentBottom="true"
+            android:background="@android:color/holo_green_light"
+            android:textColor="@android:color/background_light" />
+
+        <Button
+            android:id="@+id/btnRight"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/btnStop"
+            android:layout_margin="5dp"
+            android:layout_centerVertical="true"
+            android:text="@string/cmd_turn_right"
+            android:background="?android:attr/colorEdgeEffect"
+            android:textColor="@android:color/background_light" />
+
+        <Button
+            android:id="@+id/btnLeft"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toStartOf="@id/btnStop"
+            android:layout_margin="5dp"
+            android:text="@string/cmd_turn_left"
+            android:background="?android:attr/colorEdgeEffect"
+            android:textColor="@android:color/background_light"
+            android:layout_centerVertical="true" />
+
+    </RelativeLayout>
 
 
 </LinearLayout>
