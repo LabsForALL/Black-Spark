@@ -6,7 +6,7 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical"
-    tools:context="com.freelabs.blackspark.MainActivity">
+    tools:context="com.freelabs.blackspark.ControlActivity">
 
     <LinearLayout
         android:layout_weight="1"
@@ -15,12 +15,12 @@
         android:orientation="vertical">
 
         <Button
-            android:id="@+id/btnConnect"
+            android:id="@+id/btnConnection"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/cmd_connect"
-            android:layout_margin="5dp"
-            android:background="@android:color/holo_blue_dark" />
+            android:background="@color/colorSearch"
+            android:layout_margin="5dp"/>
 
         <TextView
             android:id="@+id/txtConsole"
@@ -31,7 +31,6 @@
             android:layout_gravity="center"
             android:textAlignment="center"
             android:background="@android:color/darker_gray" />
-
 
     </LinearLayout>
 

@@ -8,4 +8,9 @@
     <string name="cmd_connect">Connect</string>
     <string name="cmd_disconnect">Disconnect</string>
     <string name="init_text">Console</string>
+    <string name="btn_bluetooth_search">Search for devices</string>
+    <string name="btn_bluetooth_stop_search">Stop searching</string>
+    <string name="label_device_name">Device name:</string>
+    <string name="label_device_address">Device address:</string>
+    <string name="connect_blt_icon_description">Connect to device</string>
 </resources>

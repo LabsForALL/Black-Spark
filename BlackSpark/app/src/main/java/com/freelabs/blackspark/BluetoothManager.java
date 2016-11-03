@@ -1,13 +1,17 @@
 package com.freelabs.blackspark;
 
+
 import android.app.Activity;
+import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.BroadcastReceiver;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.AsyncTask;
-import android.os.Bundle;
-import android.os.PersistableBundle;
+import android.os.IBinder;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -15,58 +19,92 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.UUID;
 
-
-class SetupActivity extends Activity {
+public class BluetoothManager{
 
     private static final String MAC_ADDRESS = "20:16:01:20:66:61";
-    private BluetoothAdapter myBluetooth = null;
     private BluetoothSocket btSocket = null;
     private boolean isBtConnected = false;
     private final UUID myUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
-    private final int REQ_CODE = 9;
 
-    //CAR COMMANDS
-    private static final String MOVE_FORWARD = "f";
-    private static final String MOVE_BACKWARD = "b";
-    private static final String MOVE_STOP = "s";
-    private static final String MOVE_FORCE_STOP = "x";
-    private static final String TURN_LEFT = "l";
-    private static final String TURN_RIGHT = "r";
-
-
-    @Override
-    public void onCreate(Bundle savedInstanceState, PersistableBundle persistentState) {
-        super.onCreate(savedInstanceState, persistentState);
-        setContentView(R.layout.setup);
+    public BluetoothManager(){
 
     }
 
-    public void discoverDevices(){
+    public boolean connectToDevice(String address){
 
+        new ConnectionThread(address).start();
+        return true;
     }
 
+    private class ConnectionThread extends Thread {
+        private final BluetoothSocket mmSocket;
+        private final BluetoothDevice mmDevice;
 
-    public void connectToDevice(){
+        public ConnectionThread(String address) {
+            // Use a temporary object that is later assigned to mmSocket,
+            // because mmSocket is final
+            BluetoothSocket tmp = null;
+            mmDevice = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(MAC_ADDRESS);
 
-    }
-
-    private void getPairedDevices(){
-        /*
-        Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
-
-        // If there are paired devices
-        if (pairedDevices.size() > 0) {
-            // Loop through paired devices
-            for (BluetoothDevice device : pairedDevices) {
-                // Add the name and address to an array adapter to show in a ListView
-                mArrayAdapter.add(device.getName() + "\n" + device.getAddress());
+            // Get a BluetoothSocket to connect with the given BluetoothDevice
+            try {
+                // MY_UUID is the app's UUID string, also used by the server code
+                tmp = mmDevice.createRfcommSocketToServiceRecord(myUUID);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
+            mmSocket = tmp;
         }
-        */
+
+        public void run() {
+            // Cancel discovery because it will slow down the connection
+            BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
+
+            try {
+                // Connect the device through the socket. This will block
+                // until it succeeds or throws an exception
+                mmSocket.connect();
+            } catch (IOException connectException) {
+                // Unable to connect; close the socket and get out
+                try {
+                    mmSocket.close();
+                } catch (IOException closeException) {
+                    closeException.printStackTrace();
+
+                }
+                return;
+            }
+
+            // Do work to manage the connection (in a separate thread)
+            //manageConnectedSocket(mmSocket);
+        }
+
+        /** Will cancel an in-progress connection, and close the socket */
+        public void cancel() {
+            try {
+                mmSocket.close();
+            } catch (IOException e) { }
+        }
     }
 
+    /*if (btSocket!=null) //If the btSocket is busy
+                    {
+                        try
+                        {
+                            btSocket.close(); //close connection
+                            btSocket=null;
+                            isBtConnected=false;
 
+                            ((TextView) findViewById(R.id.txtBluetoothStatus)).setText("Disconnected");
 
+                        }
+                        catch (IOException e)
+                        {
+                            makeText(getApplicationContext(),"ERROR: \n" + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    }*/
+
+    /*
     //CAR FEATURES
     private void requestCommand(String cmd){
 
@@ -162,7 +200,7 @@ class SetupActivity extends Activity {
 
                         //Ask to the user turn the bluetooth on
                         Intent bluetoothIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                        startActivityForResult(bluetoothIntent, REQ_CODE);
+                        startActivityForResult(bluetoothIntent, REQUEST_CODE_ENABLE_BLT);
 
                     }
 
@@ -202,5 +240,21 @@ class SetupActivity extends Activity {
 
         }
     }
+*/
+/*
+        if (btSocket!=null) //If the btSocket is busy
+        {
+            try
+            {
+                btSocket.close(); //close connection
+                btSocket=null;
+                isBtConnected=false;
+            }
+            catch (IOException e)
+            {
+                makeText(getApplicationContext(),"ERROR: \n" + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        }*/
+
 
 }

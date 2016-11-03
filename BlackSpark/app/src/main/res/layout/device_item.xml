@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="5dp">
+
+    <LinearLayout
+        android:id="@+id/nameInfo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:textColor="@color/colorDeviceInfo"
+            android:text="@string/label_device_name"
+            />
+
+        <TextView
+            android:id="@+id/deviceName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:textColor="@color/colorDeviceItem"
+            android:text="Sample name"
+            />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/addressInfo"
+        android:layout_below="@id/nameInfo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:textColor="@color/colorDeviceInfo"
+            android:text="@string/label_device_address"
+            />
+
+        <TextView
+            android:id="@+id/deviceAddress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:textColor="@color/colorDeviceItem"
+            android:text="Sample adress"
+            />
+    </LinearLayout>
+
+    <ImageView
+        android:contentDescription="@string/connect_blt_icon_description"
+        android:layout_alignParentEnd="true"
+        android:layout_alignBottom="@id/addressInfo"
+        android:layout_alignTop="@id/nameInfo"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:padding="10dp"
+        android:src="@drawable/connect_icon"
+        android:layout_centerVertical="true"/>
+
+</RelativeLayout>

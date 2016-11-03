@@ -1,62 +1,25 @@
-/* ====================================================================
- * Copyright (c) 2014 Alpha Cephei Inc.  All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- *
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- *
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in
- *    the documentation and/or other materials provided with the
- *    distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY ALPHA CEPHEI INC. ``AS IS'' AND
- * ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
- * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
- * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL CARNEGIE MELLON UNIVERSITY
- * NOR ITS EMPLOYEES BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * ====================================================================
- */
-
 package com.freelabs.blackspark;
 
-import static android.widget.Toast.makeText;
-import static edu.cmu.pocketsphinx.SpeechRecognizerSetup.defaultSetup;
+
+import android.os.AsyncTask;
+import android.speech.tts.TextToSpeech;
+import android.speech.tts.UtteranceProgressListener;
+import android.util.Log;
+import android.widget.Toast;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Locale;
-import android.app.Activity;
-import android.content.Intent;
-import android.net.Uri;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.os.PersistableBundle;
-import android.speech.tts.UtteranceProgressListener;
-import android.util.Log;
-import android.view.MotionEvent;
-import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
-import android.widget.Toast;
+
 import edu.cmu.pocketsphinx.Assets;
 import edu.cmu.pocketsphinx.Hypothesis;
 import edu.cmu.pocketsphinx.RecognitionListener;
 import edu.cmu.pocketsphinx.SpeechRecognizer;
-import android.speech.tts.TextToSpeech;
 
+import static android.widget.Toast.makeText;
+import static edu.cmu.pocketsphinx.SpeechRecognizerSetup.defaultSetup;
 
-public class MainActivity extends Activity implements RecognitionListener, TextToSpeech.OnInitListener {
-
+public class SpeechHandler implements RecognitionListener, TextToSpeech.OnInitListener {
     private static final String MENU_SEARCH = "menu";
     private static final String CHECK_SEARCH = "check";
     private static final String KEY_SEARCH = "key";
@@ -65,136 +28,34 @@ public class MainActivity extends Activity implements RecognitionListener, TextT
     private String state = "init";
     private String command = "";
     private SpeechRecognizer recognizer = null;
-
-    @Override
-    public void onCreate(Bundle state, PersistableBundle persistableBundle) {
-        super.onCreate(state);
-
-        setContentView(R.layout.index);
-        //Setting up buttons listeners
-        Button btnConnect = (Button) findViewById(R.id.btnConnect);
-        Button btnForward = (Button) findViewById(R.id.btnForward);
-        Button btnStop = (Button) findViewById(R.id.btnStop);
-        Button btnBackward = (Button) findViewById(R.id.btnBackward);
-        //Button btnStartSpeak = (Button) findViewById(R.id.btnStartConv);
-
-        btnConnect.setOnClickListener(new View.OnClickListener() {
-
-            public void onClick(View v) {
-                ((TextView) findViewById(R.id.btnConnect)).setText("Connecting");
-                //new ConnectBT().execute();
-            }
-
-            /*if (btSocket!=null) //If the btSocket is busy
-                {
-                    try
-                    {
-                        btSocket.close(); //close connection
-                        btSocket=null;
-                        isBtConnected=false;
-
-                        ((TextView) findViewById(R.id.txtBluetoothStatus)).setText("Disconnected");
-
-                    }
-                    catch (IOException e)
-                    {
-                        makeText(getApplicationContext(),"ERROR: \n" + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                }*/
-        });
-
-        btnStop.setOnClickListener(new View.OnClickListener() {
-
-            public void onClick(View v) {
-                //requestCommand(MOVE_FORCE_STOP);
-            }
-
-        });
-
-
-        btnForward.setOnTouchListener(new View.OnTouchListener() {
-
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-
-                if (event.getAction() == MotionEvent.ACTION_DOWN) {
-
-
-                    //requestCommand(MOVE_FORWARD);
-
-
-                } else if (event.getAction() == MotionEvent.ACTION_UP) {
-
-
-                    //requestCommand(MOVE_STOP);
-
-                }
-
-                return true;
-
-            }
-
-        });
-
-
-        btnBackward.setOnTouchListener(new View.OnTouchListener() {
-
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-
-                if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    //requestCommand(MOVE_BACKWARD);
-
-                } else if (event.getAction() == MotionEvent.ACTION_UP) {
-                    //requestCommand(MOVE_STOP);
-                }
-
-                return true;
-
-            }
-
-        });
-
+    // Recognizer initialization is a time-consuming and it involves IO,
+    // so we execute it in async task
 /*
-        btnStartConv.setOnClickListener(new View.OnClickListener(){
-
-            public void onClick(View v) {
-                speakOut("welcome");
+    new AsyncTask<Void, Void, Exception>() {
+        @Override
+        protected Exception doInBackground(Void... params) {
+            try {
+                setupRecognizer();
+            } catch (IOException e) {
+                return e;
             }
+            return null;
+        }
 
-        });*/
-
-
-        // Recognizer initialization is a time-consuming and it involves IO,
-        // so we execute it in async task
-
-        new AsyncTask<Void, Void, Exception>() {
-            @Override
-            protected Exception doInBackground(Void... params) {
-                try {
-                    setupRecognizer();
-                } catch (IOException e) {
-                    return e;
-                }
-                return null;
+        @Override
+        protected void onPostExecute(Exception result) {
+            if (result != null) {
+                Toast.makeText(getApplicationContext(), "Failed to init recognizer ", Toast.LENGTH_LONG).show();
+                recognizer = null;
+            } else {
+                Toast.makeText(getApplicationContext(), "Recognizer is ready", Toast.LENGTH_LONG).show();
             }
-
-            @Override
-            protected void onPostExecute(Exception result) {
-                if (result != null) {
-                    Toast.makeText(getApplicationContext(), "Failed to init recognizer ", Toast.LENGTH_LONG).show();
-                    recognizer = null;
-                } else {
-                    Toast.makeText(getApplicationContext(), "Recognizer is ready", Toast.LENGTH_LONG).show();
-                }
-            }
-        }.execute();
-
-    }
-
+        }
+    }.execute();*/
+/*
     private void setupRecognizer() throws IOException {
 
-        Assets assets = new Assets(MainActivity.this);
+        Assets assets = new Assets(ControlActivity.this);
         File assetsDir = assets.syncAssets();
 
         recognizer = defaultSetup()
@@ -216,7 +77,7 @@ public class MainActivity extends Activity implements RecognitionListener, TextT
         recognizer.addGrammarSearch(CHECK_SEARCH, checkGrammar);
 
         tts = new TextToSpeech(this, this);
-    }
+    }*/
 
 
     @Override
@@ -224,16 +85,10 @@ public class MainActivity extends Activity implements RecognitionListener, TextT
 
     }
 
-
-    @Override
-    public void onPartialResult(Hypothesis hypothesis) {
-
-    }
-
-
     @Override
     public void onEndOfSpeech() {
 
+        /*
         makeText(getApplicationContext(), "END of speech", Toast.LENGTH_SHORT).show();
         recognizer.stop();
 
@@ -247,14 +102,17 @@ public class MainActivity extends Activity implements RecognitionListener, TextT
             recognizer.startListening(CHECK_SEARCH, 5000);
             Log.e("end of speech", "CHECK SEARCH");
 
-        }
+        }*/
+    }
+
+    @Override
+    public void onPartialResult(Hypothesis hypothesis) {
 
     }
 
-
     @Override
     public void onResult(Hypothesis hypothesis) {
-
+        /*
         if (hypothesis != null) {
 
             String text = hypothesis.getHypstr();
@@ -328,14 +186,19 @@ public class MainActivity extends Activity implements RecognitionListener, TextT
             makeText(getApplicationContext(), "onResult!!", Toast.LENGTH_SHORT).show();
 
         }
+         */
+    }
 
+    @Override
+    public void onError(Exception e) {
+//makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_SHORT).show();
 
     }
 
-
     @Override
     public void onTimeout() {
-        makeText(getApplicationContext(), "Time out reset", Toast.LENGTH_SHORT).show();
+            /*
+            * makeText(getApplicationContext(), "Time out reset", Toast.LENGTH_SHORT).show();
 
         if (state.equals("menu")) {
 
@@ -348,27 +211,20 @@ public class MainActivity extends Activity implements RecognitionListener, TextT
             recognizer.startListening(MENU_SEARCH, 5000);
             Log.e("end of speech", "MENU SEARCH");
 
-        }
+        }*/
     }
 
-
-    @Override
-    public void onError(Exception error) {
-
-        makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_SHORT).show();
-
-    }
 
 
     //TEXT TO SPEECH
 
     private void speakOut(String speakingWords) {
-        this.tts.speak(speakingWords, 0, null, "utteranceID");
+        //this.tts.speak(speakingWords, 0, null, "utteranceID");
     }
 
     @Override
     public void onInit(int status) {
-
+/*
         if (status == TextToSpeech.SUCCESS) {
 
             int result = tts.setLanguage(Locale.US);
@@ -438,46 +294,9 @@ public class MainActivity extends Activity implements RecognitionListener, TextT
         } else {
             Log.e("TTS", "Initilization Failed!");
         }
-
-    }
-
-    @Override
-    public void onStop() {
-
-        if (recognizer != null) {
-            recognizer.cancel();
-            recognizer.shutdown();
-            recognizer = null;
-        }
-/*
-        if (btSocket!=null) //If the btSocket is busy
-        {
-            try
-            {
-                btSocket.close(); //close connection
-                btSocket=null;
-                isBtConnected=false;
-            }
-            catch (IOException e)
-            {
-                makeText(getApplicationContext(),"ERROR: \n" + e.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        }*/
-
-        super.onStop();
+*/
     }
 
 
-    @Override
-    public void onDestroy() {
-
-
-        if (this.tts != null) {
-            this.tts.stop();
-            this.tts.shutdown();
-        }
-
-        super.onDestroy();
-    }
 }
 

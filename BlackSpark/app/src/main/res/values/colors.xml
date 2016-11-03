@@ -3,4 +3,9 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+    <color name="colorSearch">#479ece</color>
+    <color name="colorStopSearch">#ba2451</color>
+    <color name="colorDevicesList">#5e777c</color>
+    <color name="colorDeviceItem">#4af9b3</color>
+    <color name="colorDeviceInfo">#b7ccf5</color>
 </resources>
