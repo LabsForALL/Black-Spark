@@ -13,4 +13,7 @@
     <string name="label_device_name">Device name:</string>
     <string name="label_device_address">Device address:</string>
     <string name="connect_blt_icon_description">Connect to device</string>
+    <string name="btn_state_connecting">Connecting</string>
+    <string name="btn_state_connected">Disconnect</string>
+    <string name="btn_state_disconnected">Connect</string>
 </resources>

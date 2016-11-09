@@ -32,6 +32,7 @@ public class DevicesAdapter extends ArrayAdapter<BluetoothDevice> {
         TextView deviceAddress = (TextView) convertView.findViewById(R.id.deviceAddress);
 
         // Populate the data into the template view using the data object
+
         deviceName.setText(device.getName());
         deviceAddress.setText(device.getAddress());
 

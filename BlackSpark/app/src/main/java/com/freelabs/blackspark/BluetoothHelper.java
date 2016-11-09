@@ -1,39 +1,39 @@
 package com.freelabs.blackspark;
 
-
-import android.app.Activity;
-import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
-import android.content.BroadcastReceiver;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.os.AsyncTask;
-import android.os.IBinder;
-import android.support.annotation.Nullable;
-import android.util.Log;
-import android.widget.Toast;
 
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.UUID;
 
-public class BluetoothManager{
+class BluetoothHelper {
 
     private static final String MAC_ADDRESS = "20:16:01:20:66:61";
     private BluetoothSocket btSocket = null;
     private boolean isBtConnected = false;
     private final UUID myUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+    private String remoteAddress = null;
+    private BluetoothHelperListener listener;
 
-    public BluetoothManager(){
 
+    BluetoothHelper(String deviceAddress) {
+        remoteAddress = deviceAddress;
     }
 
-    public boolean connectToDevice(String address){
 
-        new ConnectionThread(address).start();
-        return true;
+    void setListener(BluetoothHelperListener l){
+        listener = l;
+    }
+
+
+    void tryToConnect(){
+        new ConnectionThread(remoteAddress).start();
+    }
+
+
+    void disconnect(){
+
     }
 
     private class ConnectionThread extends Thread {
@@ -41,6 +41,7 @@ public class BluetoothManager{
         private final BluetoothDevice mmDevice;
 
         public ConnectionThread(String address) {
+
             // Use a temporary object that is later assigned to mmSocket,
             // because mmSocket is final
             BluetoothSocket tmp = null;

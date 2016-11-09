@@ -52,38 +52,56 @@ public class ControlActivity extends Activity {
     private static final String TURN_RIGHT = "r";
 
     private boolean isConnected = false;
-
+    private BluetoothHelper bluetoothHelper = null;
+    private Button btnConnect;
 
     @Override
     public void onCreate(Bundle state, PersistableBundle persistableBundle) {
         super.onCreate(state);
 
+        //Getting the device information
         Intent intent = getIntent();
         String remoteDeviceName = intent.getStringExtra(SearchActivity.EXTRA_NAME);
         String remoteDeviceAddress = intent.getStringExtra(SearchActivity.EXTRA_ADDRESS);
 
+        //Setting up a bluetooth helper object
+        bluetoothHelper = new BluetoothHelper(remoteDeviceAddress);
+        bluetoothHelper.setListener(new BluetoothHelperListener() {
+            @Override
+            public void onConnectionSuccess() {
+                isConnected = true;
+                btnConnect.setText(R.string.btn_state_connected);
+            }
+
+            @Override
+            public void onConnectionError() {
+                isConnected = false;
+                btnConnect.setText(R.string.btn_state_disconnected);
+            }
+        });
+
+        //Setting up the layout
         setContentView(R.layout.control_layout);
-        Button btnConnect = (Button) findViewById(R.id.btnConnection);
+        btnConnect = (Button) findViewById(R.id.btnConnection);
         Button btnForward = (Button) findViewById(R.id.btnForward);
         Button btnBackward = (Button) findViewById(R.id.btnBackward);
         Button btnStop = (Button) findViewById(R.id.btnStop);
         Button btnLeft = (Button) findViewById(R.id.btnLeft);
         Button btnRight = (Button) findViewById(R.id.btnRight);
 
-
-
+        //Setting up the buttons listeners
         btnConnect.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 if(isConnected){
-
+                    bluetoothHelper.tryToConnect();
+                    btnConnect.setText(R.string.btn_state_connecting);
                 }else{
-
+                    bluetoothHelper.disconnect();
                 }
             }
         });
 
         btnForward.setOnTouchListener(new View.OnTouchListener() {
-
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
@@ -93,7 +111,6 @@ public class ControlActivity extends Activity {
                 }
                 return true;
             }
-
         });
 
         btnBackward.setOnTouchListener(new View.OnTouchListener() {

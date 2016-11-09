@@ -1,6 +1,7 @@
 package com.freelabs.blackspark;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
@@ -10,10 +11,12 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,7 +30,7 @@ public class SearchActivity extends Activity {
     public static final String EXTRA_NAME = "EXTRA_NAME";
     public static final String EXTRA_ADDRESS = "EXTRA_ADDRESS";
 
-    private final String TAG = "SearchActivity";
+    private final String TAG = SearchActivity.class.getSimpleName();
     private static final String SEARCH_STATE = "SEARCH_STATE";
     private final int REQUEST_CODE_ENABLE_BLT = 9;
 
@@ -38,8 +41,7 @@ public class SearchActivity extends Activity {
     private Button btnSearch = null;
     private DevicesAdapter foundDevicesAdapter = null;
     private BroadcastReceiver searchResultReceiver = null;
-    private BroadcastReceiver bluetoothStateReceiver = null;
-
+    private ProgressBar progressBar;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -71,6 +73,9 @@ public class SearchActivity extends Activity {
                 }
             }
         });
+
+        progressBar = (ProgressBar) LayoutInflater.from(this).inflate(R.layout.progress_bar, null);
+
     }
 
 
@@ -103,6 +108,7 @@ public class SearchActivity extends Activity {
     }
 
     private void prepareResultsHandling(){
+        //Preparing only if necessary
         if(searchResultReceiver==null){
 
             //setting up the adapter for devices list
@@ -115,7 +121,9 @@ public class SearchActivity extends Activity {
             devicesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    stopSearching();
 
+                    // Getting device info ...
                     TextView tmpView = (TextView) view.findViewById(R.id.deviceName);
                     String deviceName = tmpView.getText().toString();
                     tmpView = (TextView) view.findViewById(R.id.deviceAddress);
@@ -142,17 +150,21 @@ public class SearchActivity extends Activity {
                     switch (action){
                         case BluetoothDevice.ACTION_FOUND:
                             BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                            foundDevicesAdapter.add(device);
+                            if (device.getBondState() != BluetoothDevice.BOND_BONDED) {
+                                foundDevicesAdapter.add(device);
+                            }
                             break;
                         case BluetoothAdapter.ACTION_DISCOVERY_STARTED:
                             //Changing searching state
                             isSearching = true;
                             refreshLayout();
+                            devicesListView.addFooterView(progressBar);
                             break;
                         case BluetoothAdapter.ACTION_DISCOVERY_FINISHED:
                             //Changing searching state
                             isSearching = false;
                             refreshLayout();
+                            devicesListView.removeFooterView(progressBar);
                             break;
                     }
                 }
@@ -183,7 +195,6 @@ public class SearchActivity extends Activity {
                 }else{
                     Toast.makeText(this,"Please, enable bluetooth in order to use this application.",
                             Toast.LENGTH_LONG).show();
-                    finish();
                 }
                 break;
         }
@@ -216,12 +227,6 @@ public class SearchActivity extends Activity {
         if(searchResultReceiver!=null){
             unregisterReceiver(searchResultReceiver);
         }
-        if(bluetoothStateReceiver != null){
-            unregisterReceiver(bluetoothStateReceiver);
-        }
-        if(isSearching){
-            stopSearching();
-            isSearching=false;
-        }
+        stopSearching();
     }
 }
